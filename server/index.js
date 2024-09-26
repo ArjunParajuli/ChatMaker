@@ -3,12 +3,15 @@ import 'dotenv/config';
 import { Server } from 'socket.io'; // Import the Server class from Socket.IO for WebSocket communication
 import { createServer } from 'http'; // Import the native HTTP server
 import cors from 'cors';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
 const app = express(); // Initializes the Express application
 const server = new createServer(app) // Creates an HTTP server that works with both Express and Socket.IO
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true
 }))
@@ -16,7 +19,7 @@ app.use(cors({
 // Configure CORS specifically for the Socket.IO server
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: "*",
         methods: ["GET", "POST"],
         credentials: true
     }
@@ -27,7 +30,6 @@ io.on("connection", (socket)=>{
         // console.log(`Message from ${socket.id}: ${msg}`)
         // io.emit('received-msg', msg) // send to all users including the sender
         socket.to(roomId).emit('dm', msg); // send to particular user
-
     })
 
     socket.on("join-room", (room)=>{
@@ -39,6 +41,19 @@ io.on("connection", (socket)=>{
       })
 
 })
+
+// ----------------------- Deployment -----------------
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+app.use(express.static(path.resolve(__dirname, 'client', 'dist'))); 
+
+app.use("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html')); 
+});
+
+// ------------------------------------------------------
+
+
 
 app.get('/', (req, res) => {
     res.send('App listening');

@@ -8,7 +8,7 @@ function App() {
   const [socketId, setSocketId] = useState("");
   const [roomId, setRoomId] = useState("");
   const [msgs, setMsgs] = useState([]);
-  const [isGroupChat, setIsGroupChat] = useState(0);
+  const [isGroupChat, setIsGroupChat] = useState(false);
   const [roomName, setRoomName] = useState("");
 
   const socket = useMemo(() => {
